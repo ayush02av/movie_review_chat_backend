@@ -1,6 +1,7 @@
 const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
+const axios = require('axios');
 
 const app = express();
 const server = http.createServer(app);
@@ -17,23 +18,13 @@ io.on('connection', (socket) => {
     socket.emit("chat message", "Try: `This was a good movie` or `Worst movie ever` ")
 
     socket.on('chat message', (msg) => {
-
-        http.get(`http://movie-review-classifier-api.onrender.com/predict/${msg}`, (response) => {
-            let data = '';
-
-            response.on('data', (chunk) => {
-                data += chunk;
-            });
-
-            response.on('end', () => {
-                data = JSON.parse(data)
-                console.log('API Response:', data);
-                socket.emit('chat message', `Rating: ${data['prediction']}`)
-            });
-        }).on('error', (error) => {
-            socket.emit('chat message', '<error>')
-            console.error('Error making API request:', error.message);
-        });
+        axios.get(`https://movie-review-classifier-api.onrender.com/predict/${msg}`)
+            .then(function (response) {
+                socket.emit('chat message', `Rating: ${response.data.prediction}`)
+            })
+            .catch(function (error) {
+                socket.emit('chat message', '<error>')
+            })
     }
     );
     socket.on('disconnect', () => {
