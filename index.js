@@ -18,7 +18,7 @@ io.on('connection', (socket) => {
 
     socket.on('chat message', (msg) => {
 
-        http.get(`https://movie-review-classifier-api.onrender.com/predict/${msg}`, (response) => {
+        http.get(`http://movie-review-classifier-api.onrender.com/predict/${msg}`, (response) => {
             let data = '';
 
             response.on('data', (chunk) => {
